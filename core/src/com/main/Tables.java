@@ -9,6 +9,7 @@ public class Tables {
     static HashMap<String, Texture> button_resources = new HashMap<String, Texture>();
     static HashMap<String, Texture> zombie_resources = new HashMap<String, Texture>();
     static HashMap<String, Texture> bullet_resources = new HashMap<String, Texture>();
+    static HashMap<String, Integer> balance = new HashMap<String, Integer>();
 
     static void init(){
         cannon_resources.put("fire", Resources.cannon_fire);
@@ -32,5 +33,20 @@ public class Tables {
         zombie_resources.put("speedy", Resources.zombie_speedy);
         zombie_resources.put("riot", Resources.zombie_riot);
 
+        //cannon fire delays
+        balance.put("delay_fire", 15);
+        balance.put("delay_double", 45);
+
+        //zombie speeds
+        balance.put("speed_fast", 3);
+        balance.put("speed_riot", 1);
+
+        //zombie health
+        balance.put("hp_fast", 4);
+        balance.put("hp_riot", 10);
+
+        //animation variables
+        balance.put("cols_speedy", 6);
+        balance.put("cols_laser", 16);
     }
 }

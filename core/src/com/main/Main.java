@@ -13,6 +13,8 @@ public class Main extends ApplicationAdapter {
 	// GAME VARIABLES
 	SpriteBatch batch;
 	Random r;
+	String buildType;
+	Button prevSelect;
 
 
 
@@ -44,7 +46,7 @@ public class Main extends ApplicationAdapter {
 		batch.begin();
 
 		batch.draw(Resources.bg, 0, 0);
-
+		UI.draw(batch);
 		for (Zombie z: zombies) z.draw(batch);
 		for (Cannon c: cannons) c.draw(batch);
 		for (Button b: buttons) b.draw(batch);
@@ -74,11 +76,43 @@ public class Main extends ApplicationAdapter {
 		if(Gdx.input.justTouched()){
 			int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-			for(Cannon c : cannons) if(c.gethitbox().contains(x, y)) return;
-			if(buildable(x, y)) cannons.add(new Cannon("ccc", x, y));
+			for(Button b : buttons) if(b.gethitbox().contains(x, y)){
+				if(!b.locked) {
+					//setting the created cannon
+					System.out.println(b.type);
+					buildType = b.type;
+					//doing the selection box
+					if(!(prevSelect == null)) prevSelect.selected = false;
+					prevSelect = b;
+					b.selected = true;
 
+
+				}
+				b.locked = false;
+
+
+				return;
+			}
+
+
+
+			for(Cannon c : cannons) if(c.gethitbox().contains(x, y)) return;
+			if(buildable(x, y)) if(UI.money >= Tables.balance.get("cost_"+prevSelect)) {
+				UI.money -= Tables.balance.get("cost_"+prevSelect);
+				cannons.add(new Cannon(buildType, x, y));
+			}
 		}
 	}
+
+	//alternative method to my current prevSelect method
+	//void deselect(){
+	//	for(Button b : buttons) b.selected = false;
+	//}
+
+	//second part:
+	//deselect();
+	//b.selected = true;
+	//current_type (something else for me) = b.type;
 
 	boolean buildable(int x, int y){
 		return (x < 1000 && ((y < 200 || y > 300) && y < 500 ));
@@ -86,10 +120,13 @@ public class Main extends ApplicationAdapter {
 
 	void setup() {
 		Tables.init();
-		for (int i = 0; i < 5; i++){
-			buttons.add(new Button("bbb", i * 75 + 25, 525));
+		buttons.add(new Button("cannon", buttons.size() * 75 + 200, 525));
+		buttons.add(new Button("double", buttons.size() * 75 + 200, 525));
+		buttons.add(new Button("super", buttons.size() * 75 + 200, 525));
+		buttons.add(new Button("fire", buttons.size() * 75 + 200, 525));
+		buttons.add(new Button("laser", buttons.size() * 75 + 200, 525));
 
-		}
+
 
 	}
 
@@ -100,10 +137,26 @@ public class Main extends ApplicationAdapter {
 
 	void spawn_zombies() {
 		if(!zombies.isEmpty()) return;
+		UI.wave++;
+		for(int i = 0; i < 5 * UI.wave; i++){
+			switch(r.nextInt(10)){
 
-		for(int i = 0; i < 15; i++){
-			zombies.add(new Zombie("zzz", 1024 + (i * 50), r.nextInt(450), 1));
+				case 0: case 1: case 2:
+					zombies.add(new Zombie("zzz", 1024 + (i * 50), r.nextInt(450)));
+					break;
+				case 3: case 4:
+					zombies.add(new Zombie("fast", 1024 + (i * 50), r.nextInt(450)));
+					break;
+				case 5:
+					zombies.add(new Zombie("riot", 1024 + (i * 50), r.nextInt(450)));
+					break;
+				default:
+					zombies.add(new Zombie("dif", 1024 + (i * 50), r.nextInt(450)));
+					break;
+
+			}
 		}
+
 	}
 
 	// END OF FILE, DON'T ADD BELOW THIS
