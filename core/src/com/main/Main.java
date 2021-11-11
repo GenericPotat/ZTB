@@ -76,32 +76,67 @@ public class Main extends ApplicationAdapter {
 		if(Gdx.input.justTouched()){
 			int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-			for(Button b : buttons) if(b.gethitbox().contains(x, y)){
-				if(!b.locked) {
-					//setting the created cannon
-					System.out.println(b.type);
-					buildType = b.type;
-					//doing the selection box
-					if(!(prevSelect == null)) prevSelect.selected = false;
-					prevSelect = b;
-					b.selected = true;
 
 
+			for(Button b : buttons) {
+				if (b.gethitbox().contains(x, y)) {
+					//if button is unlocked
+					if (!b.locked) {
+						//setting the created cannon
+						System.out.println(b.type);
+						buildType = b.type;
+						//doing the selection box
+						if (!(prevSelect == null)) prevSelect.selected = false;
+						prevSelect = b;
+						b.selected = true;
+
+
+					}
+					//if button is locked
+					else {
+						if (b.t.hidden) {
+							//hidett();
+							if (!(prevSelect == null)) prevSelect.t.hidden = true;
+							prevSelect = b;
+
+							b.t.hidden = false;
+
+
+						} else {
+							b.locked = false;
+							b.t.hidden = true;
+
+						}
+
+					}
+
+					return;
+				} else {
+					if (b.t.close.gethitbox().contains(x, y) && !b.t.hidden) {hidett(); return;};
+
+					if (b.t.gethitbox().contains(x, y) && !b.t.hidden) return;
+
+
+					if (!b.t.gethitbox().contains(x, y) && !b.t.hidden) {
+						hidett();
+						return;
+					}
 				}
-				b.locked = false;
-
-
-				return;
 			}
 
 
 
 			for(Cannon c : cannons) if(c.gethitbox().contains(x, y)) return;
-			if(buildable(x, y)) if(UI.money >= Tables.balance.get("cost_"+prevSelect)) {
-				UI.money -= Tables.balance.get("cost_"+prevSelect);
+			if(buildable(x, y)) if(UI.money >= (Tables.balance.get("cost_"+buildType) == null ? 10 : Tables.balance.get("cost_"+buildType))) {
+				UI.money -= (Tables.balance.get("cost_"+buildType) == null ? 10 : Tables.balance.get("cost_"+buildType));
 				cannons.add(new Cannon(buildType, x, y));
+				//System.out.println(prevSelect);
 			}
 		}
+	}
+
+	void hidett(){
+		for (Button b : buttons) b.t.hidden = true;
 	}
 
 	//alternative method to my current prevSelect method

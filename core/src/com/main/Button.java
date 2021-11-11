@@ -3,6 +3,8 @@ package com.main;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
+import javax.tools.Tool;
+
 import jdk.internal.loader.Resource;
 
 public class Button {
@@ -10,6 +12,7 @@ public class Button {
     float angle;
     boolean locked = true, selected = false;
     String type;
+    ToolTip t;
 
 
     Button(String type, int x, int y){
@@ -20,6 +23,7 @@ public class Button {
         w = Tables.button_resources.get(type) == null ? 50 : Tables.button_resources.get(type).getWidth();
         h = Tables.button_resources.get(type) == null ? 50 : Tables.button_resources.get(type).getHeight();;
         angle = 0f;
+        t = type.equals("close") ? null : new ToolTip(type, this);
 
     }
 
@@ -31,6 +35,7 @@ public class Button {
         if (selected) {
             batch.draw(Resources.selected, x - 7, y - 7);
         }
+        if(t != null) t.draw(batch);
     }
 
     void update(){
