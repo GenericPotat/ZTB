@@ -27,6 +27,9 @@ public class Main extends ApplicationAdapter {
 	static ArrayList<Cannon> cannons = new ArrayList<Cannon>();
 	static ArrayList<Button> buttons = new ArrayList<Button>();
 	static ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+	static ArrayList<Effect> effects = new ArrayList<Effect>();
+
+
 
 
 	@Override
@@ -51,6 +54,7 @@ public class Main extends ApplicationAdapter {
 		for (Cannon c: cannons) c.draw(batch);
 		for (Button b: buttons) b.draw(batch);
 		for (Bullet b: bullets) b.draw(batch);
+		for (Effect e: effects) e.draw(batch);
 
 
 
@@ -65,6 +69,7 @@ public class Main extends ApplicationAdapter {
 		for (Cannon c: cannons) c.update();
 		for (Button b: buttons) b.update();
 		for (Bullet b: bullets) b.update();
+		for (Effect e: effects) e.update();
 
 
 		housekeeping(); //last in update
@@ -75,7 +80,7 @@ public class Main extends ApplicationAdapter {
 	void tap() {
 		if(Gdx.input.justTouched()){
 			int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
-
+			effects.add(new Effect("click", x, y));
 
 
 			for(Button b : buttons) {
@@ -85,8 +90,9 @@ public class Main extends ApplicationAdapter {
 						//setting the created cannon
 						System.out.println(b.type);
 						buildType = b.type;
-						//doing the selection box
-						if (!(prevSelect == null)) prevSelect.selected = false;
+						//doing the selection box\
+						hideselect();
+						//if (!(prevSelect == null)) prevSelect.selected = false;
 						prevSelect = b;
 						b.selected = true;
 
@@ -95,8 +101,8 @@ public class Main extends ApplicationAdapter {
 					//if button is locked
 					else {
 						if (b.t.hidden) {
-							//hidett();
-							if (!(prevSelect == null)) prevSelect.t.hidden = true;
+							hidett();
+							//if (!(prevSelect == null)) prevSelect.t.hidden = true;
 							prevSelect = b;
 
 							b.t.hidden = false;
@@ -112,15 +118,12 @@ public class Main extends ApplicationAdapter {
 
 					return;
 				} else {
+
 					if (b.t.close.gethitbox().contains(x, y) && !b.t.hidden) {hidett(); return;};
-
 					if (b.t.gethitbox().contains(x, y) && !b.t.hidden) return;
+					if (!b.t.gethitbox().contains(x, y) && !b.t.hidden) { hidett();}
 
 
-					if (!b.t.gethitbox().contains(x, y) && !b.t.hidden) {
-						hidett();
-						return;
-					}
 				}
 			}
 
@@ -138,6 +141,10 @@ public class Main extends ApplicationAdapter {
 	void hidett(){
 		for (Button b : buttons) b.t.hidden = true;
 	}
+	void hideselect(){
+		for (Button b : buttons) b.selected = false;
+	}
+
 
 	//alternative method to my current prevSelect method
 	//void deselect(){
@@ -166,9 +173,28 @@ public class Main extends ApplicationAdapter {
 	}
 
 	void housekeeping() {
-		for(Zombie z : zombies) if(!z.active) { zombies.remove(z); break; }
-		for(Bullet b : bullets) if(!b.active) { bullets.remove(b); break; }
+		for (Zombie z : zombies)
+			if (!z.active) {
+
+				effects.add(new Effect("blood", z.x, z.y));
+				zombies.remove(z);
+				break;
+			}
+		for (Bullet b : bullets)
+			if (!b.active) {
+				bullets.remove(b);
+				break;
+			}
+		for (Effect e : effects)
+			if (!e.active) {
+				effects.remove(e);
+				break;
+			}
 	}
+
+
+
+
 
 	void spawn_zombies() {
 		if(!zombies.isEmpty()) return;

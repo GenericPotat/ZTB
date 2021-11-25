@@ -28,13 +28,15 @@ public class Cannon {
     Cannon(String type, int x, int y){
         this.type = type;
         sprite = new Sprite(Tables.cannon_resources.get(type) == null ? Resources.cannon : Tables.cannon_resources.get(type));
-        w = Tables.cannon_resources.get(type) == null ? 50 : Tables.cannon_resources.get(type).getWidth();
-        h = Tables.cannon_resources.get(type) == null ? 50 : Tables.cannon_resources.get(type).getHeight();
+        rows = 1;
+        cols = Tables.balance.get("cols_"+type) == null ? 1 : Tables.balance.get("cols_"+type);;
+        w = (Tables.cannon_resources.get(type) == null ? Resources.cannon : Tables.cannon_resources.get(type)).getWidth() / cols;
+        h = (Tables.cannon_resources.get(type) == null ? Resources.cannon : Tables.cannon_resources.get(type)).getHeight() / rows;
         delay = Tables.balance.get("delay_"+type) == null ? 30 : Tables.balance.get("delay_"+type);
         this.x = gridlock(x - w / 2);
         this.y = gridlock(y - h / 2);
+        init_animations();
 
-        sprite.setPosition(this.x, this.y);
 
     }
 
@@ -44,7 +46,13 @@ public class Cannon {
 
     void update(){
         if(counter++ > delay) { if (!Main.zombies.isEmpty()) fire(); counter = 0;}
+        frame_time += Gdx.graphics.getDeltaTime();
+        frame = (TextureRegion) anim.getKeyFrame(frame_time, true);
+        sprite = new Sprite(frame);
+        sprite.setPosition(this.x, this.y);
         sprite.setRotation(calc_angle());
+
+
 
         //frame_time += Gdx.graphics.getDeltaTime();
 
@@ -71,7 +79,7 @@ public class Cannon {
     void init_animations(){
         // split texture into individual cells
         TextureRegion[][] sheet =
-                TextureRegion.split(Tables.zombie_resources.get(type) == null ? Resources.zombie : Tables.zombie_resources.get(type), w, h);
+                TextureRegion.split((Tables.cannon_resources.get(type) == null ? Resources.cannon : Tables.cannon_resources.get(type)), w, h);
         // init numbers of frames to maximum number possible (all rows * all cols)
         frames = new TextureRegion[rows * cols];
         //loop through the texture sheet and fill frames array with cells (in order)
