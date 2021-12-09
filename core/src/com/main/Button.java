@@ -21,7 +21,7 @@ public class Button {
         this.y = y;
 
         w = Tables.button_resources.get(type) == null ? 50 : Tables.button_resources.get(type).getWidth();
-        h = Tables.button_resources.get(type) == null ? 50 : Tables.button_resources.get(type).getHeight();;
+        h = Tables.button_resources.get(type) == null ? 50 : Tables.button_resources.get(type).getHeight();
         angle = 0f;
         t = type.equals("close") ? null : new ToolTip(type, this);
 

@@ -51,6 +51,7 @@ public class Tables {
         balance.put("delay_fire", 15);
         balance.put("delay_double", 45);
 
+
         //cannon placement costs
         balance.put("cost_fire", 50);
         balance.put("cost_double", 30);
@@ -71,10 +72,14 @@ public class Tables {
         balance.put("hp_fast", 4);
         balance.put("hp_riot", 10);
 
+        resources.put("bullet_missile", Resources.bullet_missile);
+        resources.put("bullet_super", Resources.bullet_super);
+        resources.put("bullet_fire", Resources.bullet_fire);
         //animation variables
         balance.put("cols_speedy", 6);
         balance.put("cols_laser", 16);
         balance.put("cols_click", 4);
         balance.put("cols_blood", 10);
+
     }
 }

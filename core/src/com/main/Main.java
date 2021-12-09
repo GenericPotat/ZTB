@@ -13,8 +13,9 @@ public class Main extends ApplicationAdapter {
 	// GAME VARIABLES
 	SpriteBatch batch;
 	Random r;
-	String buildType;
+	String buildType = "beans";
 	Button prevSelect;
+	boolean pause = false;
 
 
 
@@ -65,12 +66,13 @@ public class Main extends ApplicationAdapter {
 	void update(){
 		tap(); //first in update
 		spawn_zombies();
-		for (Zombie z: zombies) z.update();
-		for (Cannon c: cannons) c.update();
-		for (Button b: buttons) b.update();
-		for (Bullet b: bullets) b.update();
-		for (Effect e: effects) e.update();
-
+		if(!pause) {
+			for (Zombie z : zombies) z.update();
+			for (Cannon c : cannons) c.update();
+			for (Button b : buttons) b.update();
+			for (Bullet b : bullets) b.update();
+			for (Effect e : effects) e.update();
+		}
 
 		housekeeping(); //last in update
 
@@ -86,6 +88,14 @@ public class Main extends ApplicationAdapter {
 			for(Button b : buttons) {
 				if (b.gethitbox().contains(x, y)) {
 					//if button is unlocked
+					if(b.type.equals("pause") || (b.type.equals("play"))) {
+						pause = !pause;
+
+						b.type = pause ? "play" : "pause";
+
+						System.out.println("YOU CLICKED PAUSE");
+						return;
+					}
 					if (!b.locked) {
 						//setting the created cannon
 						System.out.println(b.type);
@@ -162,13 +172,20 @@ public class Main extends ApplicationAdapter {
 
 	void setup() {
 		Tables.init();
+
 		buttons.add(new Button("cannon", buttons.size() * 75 + 200, 525));
+		buttons.get(buttons.size() - 1).locked = false;
+		buttons.get(buttons.size() - 1).selected = true;
+
 		buttons.add(new Button("double", buttons.size() * 75 + 200, 525));
 		buttons.add(new Button("super", buttons.size() * 75 + 200, 525));
 		buttons.add(new Button("fire", buttons.size() * 75 + 200, 525));
 		buttons.add(new Button("laser", buttons.size() * 75 + 200, 525));
 
-
+		//pause button
+		buttons.add(new Button("pause", 1024 - 75, 525));
+		buttons.get(buttons.size() - 1).locked = false;
+		buttons.get(buttons.size() - 1).selected = false;
 
 	}
 

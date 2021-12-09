@@ -23,6 +23,7 @@ public class Cannon {
     Animation anim;
     TextureRegion[] frames;
     TextureRegion frame;
+    TextureRegion last_frame;
     float frame_time = 0.2f;
 
     Cannon(String type, int x, int y){
@@ -45,29 +46,41 @@ public class Cannon {
     }
 
     void update(){
-        if(counter++ > delay) { if (!Main.zombies.isEmpty()) fire(); counter = 0;}
+        if(!type.equals("laser") && counter++ > delay) { if (!Main.zombies.isEmpty()) fire(); counter = 0;}
+        if(type.equals("laser") && check_frame()) if(!Main.zombies.isEmpty()) fire();
         frame_time += Gdx.graphics.getDeltaTime();
         frame = (TextureRegion) anim.getKeyFrame(frame_time, true);
         sprite = new Sprite(frame);
         sprite.setPosition(this.x, this.y);
         sprite.setRotation(calc_angle());
 
-
-
         //frame_time += Gdx.graphics.getDeltaTime();
 
     }
 
+    boolean check_frame(){
+        return (last_frame == (TextureRegion)anim.getKeyFrame(frame_time, true));
+    }
+
     float calc_angle(){
 
-        float zx = Main.zombies.get(0).x + (float)Main.zombies.get(0).w / 2, zy = Main.zombies.get(0).y + (float)Main.zombies.get(0).h / 2;
-        return (float)Math.toDegrees(Math.atan((y - zy)/(x - zx)) + (x >= zx ? Math.PI : 0));
 
+        Zombie closest = null;
+        for(Zombie z : Main.zombies){
+            if(closest == null) { closest = z; continue; }
+            float hypotenuseCurrent = (float) Math.sqrt(((y - z.y) * (y - z.y)) + (x - z.x) * (x - z.x));
+            float hypotenuseClosest = (float) Math.sqrt(((y - closest.y) * (y - closest.y)) + (x - closest.x) * (x - closest.x));
+            if(hypotenuseCurrent < hypotenuseClosest) closest = z;
+
+
+        }
+        float zx = closest.x + (float)closest.w / 2, zy = closest.y + (float)closest.h / 2;
+        return (float)Math.toDegrees(Math.atan((y - zy)/(x - zx)) + (x >= zx ? Math.PI : 0));
     }
 
     void fire(){
         Resources.sfx_bullet.play(1f / Main.bullets.size());
-        Main.bullets.add(new Bullet("bbb", x + w / 2, y + h / 2));
+        Main.bullets.add(new Bullet(type, x + w / 2, y + h / 2));
     }
 
     int gridlock(int n){
@@ -89,6 +102,7 @@ public class Cannon {
                 frames[index++] = sheet[r][c];
         //initialize the animation object
         anim = new Animation(frame_time, frames);
+        if(type.equals("laser")) last_frame = (TextureRegion)anim.getKeyFrames()[anim.getKeyFrames().length - 6];
 
     }
 }
