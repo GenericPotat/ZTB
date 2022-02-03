@@ -3,6 +3,8 @@ package com.main;
 import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
 public class Resources {
@@ -14,7 +16,10 @@ public class Resources {
     static Texture button_cannon_double = new Texture(Gdx.files.internal("doubleCannonIcon.png"));
     static Texture button_cannon_laser = new Texture(Gdx.files.internal("laserCannonIcon.png"));
     static Texture button_cannon_mounted = new Texture(Gdx.files.internal("mountedCannonIcon.png"));
+    static Texture button_wall = new Texture(Gdx.files.internal("WallIcon.png"));
+
     static Texture button_play = new Texture(Gdx.files.internal("play.png"));
+
     static Texture button_pause = new Texture(Gdx.files.internal("pause.png"));
     static Texture button_start = new Texture(Gdx.files.internal("startButton.png"));
     static Texture button_exit = new Texture(Gdx.files.internal("exitButton.png"));
@@ -24,7 +29,7 @@ public class Resources {
     static Texture tooltip_bg = new Texture(Gdx.files.internal("ttbg.png"));
     static Texture red_bar = new Texture(Gdx.files.internal("red_bar.png"));
     static Texture green_bar = new Texture(Gdx.files.internal("green_bar.png"));
-
+    static Texture wall = new Texture(Gdx.files.internal("Wall.png"));
     // TODO: Cannons
     static Texture cannon = new Texture(Gdx.files.internal("Cannon.png"));
     static Texture cannon_fire = new Texture(Gdx.files.internal("Firecannon.png"));
@@ -55,5 +60,21 @@ public class Resources {
     static Texture bullet_super = new Texture(Gdx.files.internal("superbullet.png"));
     static Texture bullet_fire = new Texture(Gdx.files.internal("firebullet.png"));
 
+    //Predefined Textures
+    static Texture red = createTexture(Color.RED);
+    static Texture green = createTexture(Color.GREEN);
+    static Texture tan = createTexture(Color.TAN);
+
+    //Methods
+    static Texture createTexture(Color color){
+        Pixmap p = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        p.setColor(color);
+        p.fillRectangle(0, 0, 1, 1);
+        return new Texture(p);
+    }
+
+    static Color inverse_color(Color color){
+        return new Color(1f - color.r, 1f - color.g, 1f - color.b, 1f);
+    }
 
 }

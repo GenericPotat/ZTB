@@ -17,6 +17,10 @@ public class Cannon {
     int x, y, w, h;
     int counter = 0, delay;
     String type;
+    int maxhp = 1000;
+    int hp = maxhp;
+    boolean active = true;
+
 
     // ANIMATION VARIABLES
     int rows, cols;
@@ -37,22 +41,31 @@ public class Cannon {
         this.x = gridlock(x - w / 2);
         this.y = gridlock(y - h / 2);
         init_animations();
+        frame = (TextureRegion)anim.getKeyFrame(frame_time, true);
+        sprite = new Sprite(frame);
+        sprite.setPosition(this.x, this.y);
 
 
     }
 
     void draw(SpriteBatch batch){
         sprite.draw(batch);
+        batch.draw(Resources.red_bar, x, y - 5, w, 5);
+        batch.draw(Resources.green_bar, x, y - 5, hp * ((float)w / (float)maxhp), 5);
+
     }
 
     void update(){
-        if(!type.equals("laser") && counter++ > delay) { if (!Main.zombies.isEmpty()) fire(); counter = 0;}
-        if(type.equals("laser") && check_frame()) if(!Main.zombies.isEmpty()) fire();
+        if(!type.equals("laser") && counter++ > delay) { if (!Game.zombies.isEmpty()) fire(); counter = 0;}
+        if(type.equals("laser") && check_frame()) if(!Game.zombies.isEmpty()) fire();
         frame_time += Gdx.graphics.getDeltaTime();
         frame = (TextureRegion) anim.getKeyFrame(frame_time, true);
         sprite = new Sprite(frame);
         sprite.setPosition(this.x, this.y);
         sprite.setRotation(calc_angle());
+        hp -= 1;
+        active = x + w > 0 && hp > 0;
+
 
         //frame_time += Gdx.graphics.getDeltaTime();
 
@@ -66,7 +79,7 @@ public class Cannon {
 
 
         Zombie closest = null;
-        for(Zombie z : Main.zombies){
+        for(Zombie z : Game.zombies){
             if(closest == null) { closest = z; continue; }
             float hypotenuseCurrent = (float) Math.sqrt(((y - z.y) * (y - z.y)) + (x - z.x) * (x - z.x));
             float hypotenuseClosest = (float) Math.sqrt(((y - closest.y) * (y - closest.y)) + (x - closest.x) * (x - closest.x));
@@ -79,8 +92,15 @@ public class Cannon {
     }
 
     void fire(){
-        Resources.sfx_bullet.play(1f / Main.bullets.size());
-        Main.bullets.add(new Bullet(type, x + w / 2, y + h / 2));
+        if(type.equals("double")){
+            Resources.sfx_bullet.play(0.2f / Game.bullets.size());
+            Game.bullets.add(new Bullet(type, x + w / 2, y + h / 4));
+            Resources.sfx_bullet.play(0.2f / Game.bullets.size());
+            Game.bullets.add(new Bullet(type, x + w / 2, y + (h / 4) * 3));
+            return;
+        }
+        Resources.sfx_bullet.play(1f / Game.bullets.size());
+        Game.bullets.add(new Bullet(type, x + w / 2, y + h / 2));
     }
 
     int gridlock(int n){

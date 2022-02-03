@@ -24,7 +24,7 @@ public class Zombie {
         this.type = type;
         this.x = x;
         this.y = y;
-        this.speed = Tables.balance.get("speed_"+type) == null ? 1 : Tables.balance.get("speed_"+type);
+        this.speed = Tables.balance.get("speed_"+type) == null ? 10 : Tables.balance.get("speed_"+type);
         hp = Tables.balance.get("hp_"+type) == null ? 5 : Tables.balance.get("hp_"+type);
         maxhp = hp;
         rows = 1;
@@ -46,6 +46,10 @@ public class Zombie {
     void update(){
         x -= speed;
 
+        UI.score += hp > 0 ? 0 : 1;
+        UI.money += hp > 0 ? 0 : 5;
+        UI.life -= x + w >  0 ? 0 : 1;
+
         active = x + w > 0 && hp > 0;
     }
 
@@ -66,5 +70,12 @@ public class Zombie {
     }
 
     Rectangle gethitbox(){ return new Rectangle(x, y, w, h);}
+
+
+
+
+
+
+
 
 }

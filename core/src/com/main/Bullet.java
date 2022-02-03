@@ -38,7 +38,7 @@ public class Bullet {
          x += Math.cos(angle) * speed;
          y += Math.sin(angle) * speed;
          sprite.setPosition(x, y);
-         dt += Math.cos(angle) * speed + Math.sin(angle) * speed;
+         dt += Math.abs(Math.cos(angle)) * speed + Math.abs(Math.sin(angle)) * speed;
          active = dt < md;
          hitzombie();
     }
@@ -48,7 +48,7 @@ public class Bullet {
     float calc_angle(){
 
         Zombie closest = null;
-        for(Zombie z : Main.zombies){
+        for(Zombie z : Game.zombies){
             if(closest == null) { closest = z; continue; }
             float hypotenuseCurrent = (float) Math.sqrt(((y - z.y) * (y - z.y)) + (x - z.x) * (x - z.x));
             float hypotenuseClosest = (float) Math.sqrt(((y - closest.y) * (y - closest.y)) + (x - closest.x) * (x - closest.x));
@@ -61,8 +61,8 @@ public class Bullet {
     }
 
     void hitzombie(){
-        if(Main.zombies.isEmpty()) return;
-        for(Zombie z : Main.zombies) {
+        if(Game.zombies.isEmpty()) return;
+        for(Zombie z : Game.zombies) {
             if (z.gethitbox().contains(hitbox())) {
                 z.hp--;
                 this.active = false;

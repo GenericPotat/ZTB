@@ -2,8 +2,10 @@ package com.main;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
@@ -11,232 +13,52 @@ import java.util.Random;
 
 public class Main extends ApplicationAdapter {
 	// GAME VARIABLES
+	OrthographicCamera camera;
 	SpriteBatch batch;
-	Random r;
-	String buildType = "beans";
-	Button prevSelect;
-	boolean pause = false;
+	static Start start;
+	static Game game;
+	static About about;
+	static GameOver gameover;
 
-
+	//CONTROL VARIABLES
+	static boolean started = false, info = false, lose = false;
 
 	Zombie zombie;
 
 	// CONTROL VARIABLES
-
-	// GAME LISTS
-	static ArrayList<Zombie> zombies = new ArrayList<Zombie>();
-	static ArrayList<Cannon> cannons = new ArrayList<Cannon>();
-	static ArrayList<Button> buttons = new ArrayList<Button>();
-	static ArrayList<Bullet> bullets = new ArrayList<Bullet>();
-	static ArrayList<Effect> effects = new ArrayList<Effect>();
-
-
-
-
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		r = new Random();
-		setup();
-
-
-
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, 1024, 600);
+		start = new Start();
+		game = new Game();
+		about = new About();
+		gameover = new GameOver();
 	}
 
 	@Override
 	public void render () {
 		ScreenUtils.clear(1, 0, 0, 1);
-		update();
+		tap();
+		camera.update();
+		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-
-		batch.draw(Resources.bg, 0, 0);
-		UI.draw(batch);
-		for (Zombie z: zombies) z.draw(batch);
-		for (Cannon c: cannons) c.draw(batch);
-		for (Button b: buttons) b.draw(batch);
-		for (Bullet b: bullets) b.draw(batch);
-		for (Effect e: effects) e.draw(batch);
-
-
-
-
+		if(!started) if(info) about.draw(batch); else start.draw(batch);
+		else if(lose) gameover.draw(batch); else game.draw(batch);
 		batch.end();
-	}
-
-	void update(){
-		tap(); //first in update
-		spawn_zombies();
-		if(!pause) {
-			for (Zombie z : zombies) z.update();
-			for (Cannon c : cannons) c.update();
-			for (Button b : buttons) b.update();
-			for (Bullet b : bullets) b.update();
-			for (Effect e : effects) e.update();
-		}
-
-		housekeeping(); //last in update
-
-
 	}
 
 	void tap() {
 		if(Gdx.input.justTouched()){
-			int x = Gdx.input.getX(), y = Gdx.graphics.getHeight() - Gdx.input.getY();
-			effects.add(new Effect("click", x, y));
-
-
-			for(Button b : buttons) {
-				if (b.gethitbox().contains(x, y)) {
-					//if button is unlocked
-					if(b.type.equals("pause") || (b.type.equals("play"))) {
-						pause = !pause;
-
-						b.type = pause ? "play" : "pause";
-
-						System.out.println("YOU CLICKED PAUSE");
-						return;
-					}
-					if (!b.locked) {
-						//setting the created cannon
-						System.out.println(b.type);
-						buildType = b.type;
-						//doing the selection box\
-						hideselect();
-						//if (!(prevSelect == null)) prevSelect.selected = false;
-						prevSelect = b;
-						b.selected = true;
-
-
-					}
-					//if button is locked
-					else {
-						if (b.t.hidden) {
-							hidett();
-							//if (!(prevSelect == null)) prevSelect.t.hidden = true;
-							prevSelect = b;
-
-							b.t.hidden = false;
-
-
-						} else {
-							b.locked = false;
-							b.t.hidden = true;
-
-						}
-
-					}
-
-					return;
-				} else {
-
-					if (b.t.close.gethitbox().contains(x, y) && !b.t.hidden) {hidett(); return;};
-					if (b.t.gethitbox().contains(x, y) && !b.t.hidden) return;
-					if (!b.t.gethitbox().contains(x, y) && !b.t.hidden) { hidett();}
-
-
-				}
-			}
-
-
-
-			for(Cannon c : cannons) if(c.gethitbox().contains(x, y)) return;
-			if(buildable(x, y)) if(UI.money >= (Tables.balance.get("cost_"+buildType) == null ? 10 : Tables.balance.get("cost_"+buildType))) {
-				UI.money -= (Tables.balance.get("cost_"+buildType) == null ? 10 : Tables.balance.get("cost_"+buildType));
-				cannons.add(new Cannon(buildType, x, y));
-				//System.out.println(prevSelect);
-			}
+			Vector3 t = new Vector3();
+			t.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			camera.unproject(t);
+			int x = (int)t.x, y = (int)t.y;
+			if(!started) if(info) about.tap(x, y); else start.tap(x, y);
+			else if(lose) gameover.tap(x, y); else game.tap(x, y);
 		}
 	}
-
-	void hidett(){
-		for (Button b : buttons) b.t.hidden = true;
-	}
-	void hideselect(){
-		for (Button b : buttons) b.selected = false;
-	}
-
-
-	//alternative method to my current prevSelect method
-	//void deselect(){
-	//	for(Button b : buttons) b.selected = false;
-	//}
-
-	//second part:
-	//deselect();
-	//b.selected = true;
-	//current_type (something else for me) = b.type;
-
-	boolean buildable(int x, int y){
-		return (x < 1000 && ((y < 200 || y > 300) && y < 500 ));
-	}
-
-	void setup() {
-		Tables.init();
-
-		buttons.add(new Button("cannon", buttons.size() * 75 + 200, 525));
-		buttons.get(buttons.size() - 1).locked = false;
-		buttons.get(buttons.size() - 1).selected = true;
-
-		buttons.add(new Button("double", buttons.size() * 75 + 200, 525));
-		buttons.add(new Button("super", buttons.size() * 75 + 200, 525));
-		buttons.add(new Button("fire", buttons.size() * 75 + 200, 525));
-		buttons.add(new Button("laser", buttons.size() * 75 + 200, 525));
-
-		//pause button
-		buttons.add(new Button("pause", 1024 - 75, 525));
-		buttons.get(buttons.size() - 1).locked = false;
-		buttons.get(buttons.size() - 1).selected = false;
-
-	}
-
-	void housekeeping() {
-		for (Zombie z : zombies)
-			if (!z.active) {
-
-				effects.add(new Effect("blood", z.x, z.y));
-				zombies.remove(z);
-				break;
-			}
-		for (Bullet b : bullets)
-			if (!b.active) {
-				bullets.remove(b);
-				break;
-			}
-		for (Effect e : effects)
-			if (!e.active) {
-				effects.remove(e);
-				break;
-			}
-	}
-
-
-
-
-
-	void spawn_zombies() {
-		if(!zombies.isEmpty()) return;
-		UI.wave++;
-		for(int i = 0; i < 5 * UI.wave; i++){
-			switch(r.nextInt(10)){
-
-				case 0: case 1: case 2:
-					zombies.add(new Zombie("zzz", 1024 + (i * 50), r.nextInt(450)));
-					break;
-				case 3: case 4:
-					zombies.add(new Zombie("fast", 1024 + (i * 50), r.nextInt(450)));
-					break;
-				case 5:
-					zombies.add(new Zombie("riot", 1024 + (i * 50), r.nextInt(450)));
-					break;
-				default:
-					zombies.add(new Zombie("dif", 1024 + (i * 50), r.nextInt(450)));
-					break;
-
-			}
-		}
-
-	}
-
 	// END OF FILE, DON'T ADD BELOW THIS
 	@Override
 	public void dispose () {
